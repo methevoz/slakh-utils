@@ -108,8 +108,6 @@ class Submixes(object):
             submix = np.sum(src_data, axis=0)
             sf.write(src_path, submix, sr)
 
-        print(src_path)
-
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
