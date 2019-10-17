@@ -85,7 +85,7 @@ class Submixes(object):
 
             # Figure out which submix this source belongs to
             src_id = os.path.splitext(s)[0]
-            src_submix_name = src_metadata[src_id][self.submix_key]
+            src_submix_name = src_metadata['stems'][src_id][self.submix_key]
             key = self._inv_sm[src_submix_name] if src_submix_name in self._inv_sm else self.RESIDUALS_KEY
             key = _file_ready_string(key)
 
@@ -108,30 +108,32 @@ class Submixes(object):
             submix = np.sum(src_data, axis=0)
             sf.write(src_path, submix, sr)
 
+        print(src_path)
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('-submix-definition-file', '-s', type=str, required=True,
+    parser.add_argument('-submix-definition-file', '-d', type=str, required=True,
                         help='Path to yaml file to define a submix.')
     parser.add_argument('-input-dir', '-i', type=str, required=False,
                         help='Base directory to apply a submix to the whole dataset.')
     parser.add_argument('-src-dir', '-s', type=str, required=False,
                         help='Directory of a single track to create a submix for.')
     parser.add_argument('-num-threads', '-t', type=int, default=1,
-                        help='Number of threads to spwan to do the submixing.')
+                        help='Number of threads to span to do the submixing.')
 
     args = parser.parse_args()
-    if args.root_dir is None and args.src_dir is None:
-        raise ValueError('Must provide one of (root_dir, src_dir).')
-    elif args.root_dir is not None and args.src_dir is not None:
-        raise ValueError('Must provide only one of (root_dir, src_dir).')
+    if args.input_dir is None and args.src_dir is None:
+        raise ValueError('Must provide one of (input_dir, src_dir).')
+    elif args.input_dir is not None and args.src_dir is not None:
+        raise ValueError('Must provide only one of (input_dir, src_dir).')
 
-    elif args.root_dir:
-        sm = Submixes(args.input_dir, args.submix_definition)
+    elif args.input_dir:
+        sm = Submixes(args.input_dir, args.submix_definition_file)
         sm.do_all_submixes(args.num_threads)
 
     elif args.src_dir:
-        sm = Submixes(None, args.submix_definition)
+        sm = Submixes(None, args.submix_definition_file)
         sm.do_submix(args.src_dir)
 
     else:
